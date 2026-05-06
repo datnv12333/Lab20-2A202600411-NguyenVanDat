@@ -67,3 +67,6 @@
   - Consider hybrid models that leverage both single-agent and multi-agent systems based on task complexity.
 
 By following these recommendations, organizations can effectively balance the trade-offs between cost, latency, and quality in their AI deployments.
+
+## Trace
+![Trace](./reports/trace.png)
