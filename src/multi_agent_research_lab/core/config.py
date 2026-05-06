@@ -1,0 +1,49 @@
+"""Application configuration.
+
+Keep config small and explicit. Do not read environment variables directly in agents.
+"""
+
+from functools import lru_cache
+from typing import Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Runtime settings loaded from environment variables or `.env`."""
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    app_env: str = Field(default="local", validation_alias="APP_ENV")
+    log_level: str = Field(default="INFO", validation_alias="LOG_LEVEL")
+
+    openai_api_key: Optional[str] = Field(default=None, validation_alias="OPENAI_API_KEY")
+    openai_model: str = Field(default="gpt-4o-mini", validation_alias="OPENAI_MODEL")
+
+    langsmith_api_key: Optional[str] = Field(default=None, validation_alias="LANGSMITH_API_KEY")
+    langsmith_project: str = Field(default="multi-agent-research-lab", validation_alias="LANGSMITH_PROJECT")
+
+    tavily_api_key: Optional[str] = Field(default=None, validation_alias="TAVILY_API_KEY")
+
+    llm_provider: Optional[str] = Field(default=None, validation_alias="LLM_PROVIDER")
+    ollama_base_url: str = Field(default="http://localhost:11434/v1", validation_alias="OLLAMA_BASE_URL")
+    ollama_model: Optional[str] = Field(default=None, validation_alias="OLLAMA_MODEL")
+    request_timeout_seconds: int = Field(default=30, ge=1, le=600, validation_alias="REQUEST_TIMEOUT_SECONDS")
+    llm_max_retries: int = Field(default=3, ge=0, le=10, validation_alias="LLM_MAX_RETRIES")
+    search_max_retries: int = Field(default=2, ge=0, le=10, validation_alias="SEARCH_MAX_RETRIES")
+    input_token_cost_usd_per_1k: Optional[float] = Field(default=None, ge=0, validation_alias="INPUT_TOKEN_COST_USD_PER_1K")
+    output_token_cost_usd_per_1k: Optional[float] = Field(default=None, ge=0, validation_alias="OUTPUT_TOKEN_COST_USD_PER_1K")
+    search_cost_usd_per_call: Optional[float] = Field(default=None, ge=0, validation_alias="SEARCH_COST_USD_PER_CALL")
+
+    max_iterations: int = Field(default=6, ge=1, le=20, validation_alias="MAX_ITERATIONS")
+    timeout_seconds: int = Field(default=60, ge=5, le=600, validation_alias="TIMEOUT_SECONDS")
+
+    supervisor_use_llm: bool = Field(default=False, validation_alias="SUPERVISOR_USE_LLM")
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Return cached settings instance."""
+
+    return Settings()
